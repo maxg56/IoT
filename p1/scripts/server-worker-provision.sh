@@ -1,15 +1,14 @@
 #!/bin/bash
+# * server-worker scripts 
 
-# server-worker scripts 
-# TODO : Waiting for theserver to be created so we can get the token and set up k3s in agent
-echo "seting up the worker"
+set -e
 
-until [ -f /vagrant/token ]; do
-	sleep 2
-done
+echo "[INFO] SW : seting up the worker."
 
-echo "File found !"
+export K3S_TOK=$(cat /vagrantvagra/token)
 
-export K3S_TOK=$(cat /vagrant/token)
+echo "[INFO] SW : token found."
 
 curl -sfL https://get.k3s.io | K3S_URL=https://192.168.56.110:6443 K3S_TOKEN=$K3S_TOK sh -
+
+echo "[INFO] SW : K3s agent installed and connected to server."

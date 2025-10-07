@@ -1,16 +1,22 @@
 #!/bin/bash
+# * server script
 
-# server script
-# TODO : Setup k3s in controler mode
+set -e
+
+echo "[INFO] S : seting up the server."
 
 curl -sfL https://get.k3s.io | sh -
 
-while [ ! -f /var/lib/rancher/k3s/server/node-token ]; do
-	echo "Waiting for the token"
-	sleep 3
+echo "[INFO] S : K3S install success."
+
+echo "[INFO] S : Waiting for K3s to be ready..."
+
+until sudo k3s kubectl get node &>/dev/null; do
+    sleep 2
 done
 
 sudo cp /var/lib/rancher/k3s/server/node-token /vagrant/token
+
 sudo chmod 644 /vagrant/token
 
-echo "K3s installed and token shared"
+echo "[INFO] S : K3s token shared, server is running."
