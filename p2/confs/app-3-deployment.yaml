@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app3
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: app3
+  template:
+    metadata:
+      labels:
+        name: app3
+    spec:
+      containers:
+      - name: whoami
+        image: containous/whoami
+        ports:
+        - containerPort: 80
