@@ -1,0 +1,61 @@
+#!/bin/bash
+
+
+
+sudo k3d cluster delete iot-bonus || true
+sudo k3d cluster create iot-bonus \
+  --port 80:80@loadbalancer \
+  --port 443:443@loadbalancer \
+
+sudo kubectl create namespace argocd
+sudo kubectl create namespace dev
+sudo kubectl apply -f ./confs/gitlab.yaml
+sudo kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+
+sudo kubectl config set-context --current --namespace=argocd
+sudo argocd login --insecure --core
+
+echo "waiting for gitlab to be ready..."
+sudo kubectl wait --for=condition=ready --timeout=600s pods --all -n gitlab
+
+echo "waiting for argocd to be ready..."
+sudo kubectl wait --for=condition=ready --timeout=600s pods --all -n argocd
+
+sudo kubectl port-forward svc/argocd-server -n argocd 8080:443 > /dev/null 2>&1 &
+
+sudo kubectl config set-context --current --namespace=dev
+sudo kubectl apply -f ./confs/manifest.yaml
+sudo kubectl apply -f ./confs/app.yaml
+
+echo "Waiting for application to be ready..."
+sudo kubectl wait --for=condition=ready --timeout=300s pods --all -n dev
+
+echo "Checking services status..."
+sudo kubectl get pods -n dev
+sudo kubectl get services -n dev
+sudo kubectl get ingress -n dev
+
+echo ""
+echo "=== Health Check ==="
+if curl -s http://will42.localhost > /dev/null; then
+    echo "✅ Application is responding at http://will42.localhost"
+else
+    echo "❌ Application is not responding. Check the logs:"
+    echo "kubectl logs -n dev -l app=myapp"
+    exit 1
+fi
+
+echo ""
+echo "=== Services are ready ==="
+echo "GitLab UI: http://gitlab.localhost"
+echo "GitLab Username: root"
+echo "GitLab Password: changeme123!"
+echo ""
+echo "ArgoCD UI: https://localhost:8080"
+echo "Username: admin"
+echo "Password: $(sudo kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath='{.data.password}' | base64 -d)"
+echo "Application: http://will42.localhost"
+echo ""
+echo "To test the application:"
+echo "curl http://will42.localhost"
+
