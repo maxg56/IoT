@@ -36,8 +36,8 @@ sudo kubectl get ingress -n dev
 
 echo ""
 echo "=== Health Check ==="
-if curl -s http://42app.localhost > /dev/null; then
-    echo "✅ Application is responding at http://42app.localhost"
+if curl -s http://will42.localhost > /dev/null; then
+    echo "✅ Application is responding at http://will42.localhost"
 else
     echo "❌ Application is not responding. Check the logs:"
     echo "kubectl logs -n dev -l app=myapp"
@@ -49,8 +49,8 @@ echo "=== Services are ready ==="
 echo "ArgoCD UI: https://localhost:8080"
 echo "Username: admin"
 echo "Password: $(sudo kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath='{.data.password}' | base64 -d)"
-echo "Application: http://42app.localhost"
+echo "Application: http://will42.localhost"
 echo ""
 echo "To test the application:"
-echo "curl http://42app.localhost"
+echo "curl http://will42.localhost"
 
