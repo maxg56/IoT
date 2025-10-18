@@ -46,7 +46,7 @@ sudo kubectl port-forward svc/argocd-server -n argocd 8080:443 > /dev/null 2>&1 
 
 sudo kubectl config set-context --current --namespace=dev
 sudo kubectl apply -f ./confs/manifest.yaml
-sudo kubectl apply -f ./confs/app.yaml
+sudo kubectl apply -f ./confs/app-gitlab-local.yaml
 
 echo "Waiting for application to be ready..."
 sudo kubectl wait --for=condition=ready --timeout=300s pods --all -n dev

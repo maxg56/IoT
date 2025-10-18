@@ -1,9 +1,5 @@
 #!/bin/bash
 
-# Kill existing port-forward processes
-echo "Stopping existing port-forward processes..."
-sudo pkill -f "kubectl port-forward" || true
-sudo pkill -f "argocd" || true
 
 sudo k3d cluster delete iot-cluster
 sudo k3d cluster create iot-cluster \
