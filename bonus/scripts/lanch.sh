@@ -1,6 +1,9 @@
 #!/bin/bash
 
-
+# Kill existing port-forward processes
+echo "Stopping existing port-forward processes..."
+sudo pkill -f "kubectl port-forward" || true
+sudo pkill -f "argocd" || true
 
 sudo k3d cluster delete iot-bonus || true
 sudo k3d cluster create iot-bonus \
@@ -9,16 +12,34 @@ sudo k3d cluster create iot-bonus \
 
 sudo kubectl create namespace argocd
 sudo kubectl create namespace dev
-sudo kubectl apply -f ./confs/gitlab.yaml
+
+# Deploy GitLab components in order
+echo "Deploying GitLab namespace..."
+sudo kubectl apply -f ./confs/gitlab-namespace.yaml
+
+echo "Deploying GitLab storage..."
+sudo kubectl apply -f ./confs/gitlab-storage.yaml
+
+echo "Deploying GitLab deployment..."
+sudo kubectl apply -f ./confs/gitlab-deployment.yaml
+
+echo "Deploying GitLab service..."
+sudo kubectl apply -f ./confs/gitlab-service.yaml
+
+echo "Deploying GitLab ingress..."
+sudo kubectl apply -f ./confs/gitlab-ingress.yaml
+
+echo "Deploying ArgoCD..."
 sudo kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
 
 sudo kubectl config set-context --current --namespace=argocd
 sudo argocd login --insecure --core
 
-echo "waiting for gitlab to be ready..."
-sudo kubectl wait --for=condition=ready --timeout=600s pods --all -n gitlab
+echo "Waiting for GitLab to be ready (this may take 5-10 minutes)..."
+echo "GitLab is initializing - you can check progress with: kubectl logs -n gitlab deployment/gitlab -f"
+sudo kubectl wait --for=condition=ready --timeout=900s pods --all -n gitlab
 
-echo "waiting for argocd to be ready..."
+echo "Waiting for ArgoCD to be ready..."
 sudo kubectl wait --for=condition=ready --timeout=600s pods --all -n argocd
 
 sudo kubectl port-forward svc/argocd-server -n argocd 8080:443 > /dev/null 2>&1 &
@@ -47,15 +68,20 @@ fi
 
 echo ""
 echo "=== Services are ready ==="
-echo "GitLab UI: http://gitlab.localhost"
+echo "GitLab UI: http://gitlab.localhost (or http://localhost:30800)"
 echo "GitLab Username: root"
 echo "GitLab Password: changeme123!"
 echo ""
 echo "ArgoCD UI: https://localhost:8080"
-echo "Username: admin"
-echo "Password: $(sudo kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath='{.data.password}' | base64 -d)"
+echo "ArgoCD Username: admin"
+echo "ArgoCD Password: $(sudo kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath='{.data.password}' | base64 -d)"
+echo ""
 echo "Application: http://will42.localhost"
 echo ""
 echo "To test the application:"
 echo "curl http://will42.localhost"
+echo ""
+echo "To check GitLab status:"
+echo "kubectl get pods -n gitlab"
+echo "kubectl logs -n gitlab deployment/gitlab"
 

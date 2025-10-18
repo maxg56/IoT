@@ -1,20 +1,20 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: will42-ingress
-  namespace: dev
+  name: gitlab-ingress
+  namespace: gitlab
   annotations:
     traefik.ingress.kubernetes.io/ssl-redirect: "false"
 spec:
   ingressClassName: traefik
   rules:
-  - host: will42.localhost
+  - host: gitlab.localhost
     http:
       paths:
       - path: /
         pathType: Prefix
         backend:
           service:
-            name: myapp
+            name: gitlab
             port:
-              number: 8888
+              number: 80
