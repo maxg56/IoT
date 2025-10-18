@@ -5,7 +5,7 @@ set -e
 
 echo "[INFO] SW : seting up the worker."
 
-export K3S_TOK=$(cat /vagrantvagra/token)
+export K3S_TOK=$(cat /vagrant/token)
 
 echo "[INFO] SW : token found."
 
