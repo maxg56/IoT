@@ -37,21 +37,11 @@ for ns in argocd dev gitlab; do
   fi
 done
 
-# === DEPLOY GITLAB ===
-echo -e "${CYAN}🚀 Deploying GitLab components...${RESET}"
-kubectl apply -f ./confs/gitlab-namespace.yaml
-kubectl apply -f ./confs/gitlab-storage.yaml
-kubectl apply -f ./confs/gitlab-deployment.yaml
-kubectl apply -f ./confs/gitlab-service.yaml
-kubectl apply -f ./confs/gitlab-ingress.yaml
 
 # === DEPLOY ARGOCD ===
 echo -e "${CYAN}⚙️  Deploying ArgoCD...${RESET}"
 kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
 
-# === WAIT FOR COMPONENTS ===
-echo -e "${YELLOW}⏳ Waiting for GitLab to be ready (this can take 5–10 min)...${RESET}"
-kubectl wait --for=condition=ready pod --all -n gitlab --timeout=900s || true
 
 echo -e "${YELLOW}⏳ Waiting for ArgoCD to be ready...${RESET}"
 kubectl wait --for=condition=ready pod --all -n argocd --timeout=600s || true
@@ -93,9 +83,6 @@ fi
 ARGO_PWD=$(kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath='{.data.password}' | base64 -d)
 
 echo -e "\n${GREEN}=== 🚀 Deployment Summary ===${RESET}"
-echo -e "📦 ${CYAN}GitLab:${RESET} http://gitlab.localhost (or http://localhost:30800)"
-echo -e "   Username: root"
-echo -e "   Password: changeme123!"
 echo ""
 echo -e "🧭 ${CYAN}ArgoCD:${RESET} https://localhost:8080"
 echo -e "   Username: admin"
