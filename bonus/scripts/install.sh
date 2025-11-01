@@ -15,14 +15,14 @@ else
 fi
 
 # Check if k3d cluster exists, if not create it
-if ! k3d cluster list | grep -q "iot-bonus"; then
-  echo -e "${GREEN}Creating k3d cluster 'iot-bonus'...${RESET}"
-  k3d cluster create iot-bonus \
-    --port 80:80@loadbalancer \
-    --port 443:443@loadbalancer
+if ! k3d cluster list | grep -q "dvergobbS"; then
+  echo -e "${RED}ERROR: Cluster 'dvergobbS' not found!${RESET}"
+  echo -e "${GREEN}Please run the p3 cluster creation script first:${RESET}"
+  echo "  cd /home/maxence/Documents/iot/IoT/p3 && ./scripts/1_k3d.sh"
+  exit 1
 else
-  echo -e "${GREEN}Cluster 'iot-bonus' exists. Starting it if stopped...${RESET}"
-  k3d cluster start iot-bonus 2>/dev/null || true
+  echo -e "${GREEN}Using existing cluster 'dvergobbS'...${RESET}"
+  k3d cluster start dvergobbS 2>/dev/null || echo "Cluster already running"
 fi
 
 # Wait for cluster to be ready
