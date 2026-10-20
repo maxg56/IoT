@@ -12,10 +12,11 @@ RESET="\033[0m"
 echo -e "${BOLD}${ITALIC}Synchronizing GitHub repo to GitLab...${RESET}\n"
 
 # Configuration
-GITLAB_REPO_NAME="mgedrot-argo-demo"
-GITHUB_REPO_URL="https://github.com/maxg56/mgedrot-argo-demo.git"
-GITLAB_USER="root"
-WORK_DIR="git_sync_temp"
+# Surchargeables via l'environnement (voir bonus/.env.example)
+GITLAB_REPO_NAME="${GITLAB_REPO_NAME:-mgedrot-argo-demo}"
+GITHUB_REPO_URL="${GITHUB_REPO_URL:-https://github.com/maxg56/mgedrot-argo-demo.git}"
+GITLAB_USER="${GITLAB_USER:-root}"
+WORK_DIR="${WORK_DIR:-git_sync_temp}"
 
 # Cleanup function
 cleanup() {
@@ -39,7 +40,10 @@ echo -e "${GREEN}✓ GitLab is accessible${RESET}"
 
 # Get GitLab password
 echo -e "${GREEN}Retrieving GitLab credentials...${RESET}"
-GITLAB_PASS=$(kubectl get secret gitlab-gitlab-initial-root-password -n gitlab -o jsonpath="{.data.password}" | base64 --decode 2>/dev/null)
+# Jamais en dur : fourni par l'environnement ou lu depuis le secret Kubernetes
+if [ -z "${GITLAB_PASS:-}" ]; then
+  GITLAB_PASS=$(kubectl get secret gitlab-gitlab-initial-root-password -n gitlab -o jsonpath="{.data.password}" | base64 --decode 2>/dev/null)
+fi
 
 if [ -z "$GITLAB_PASS" ]; then
   echo -e "${RED}ERROR: Could not retrieve GitLab password${RESET}"

@@ -1,2 +1,31 @@
 tmp/
 .vagrant/
+
+# --- Données des conteneurs / instances auto-hébergées (jamais dans le repo) ---
+# Monter ces données en volumes hors du dépôt.
+bonus/confs/data/
+**/data/postgresql/
+**/gitlab-data/
+bonus/git_sync_temp/
+bonus/git_repo/
+
+# --- Secrets, clés et jetons ---
+.env
+.env.*
+!.env.example
+!**/.env.example
+*.key
+*.pem
+*.crt
+*.p12
+*.pfx
+id_rsa*
+id_ed25519*
+*secret*
+!*.example
+.netrc
+kubeconfig*
+*.kubeconfig
+p1/token
+p2/token
+**/node-token
