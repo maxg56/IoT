@@ -265,6 +265,16 @@ kubectl get ingress -n gitlab
 
 ---
 
+## 🔒 Sécurité et secrets
+
+- **Aucun secret dans le dépôt** : mots de passe, jetons, clés et fichiers `.env` sont ignorés (voir `.gitignore`).
+- **Données des conteneurs hors du repo** : les dossiers de données d'instances auto-hébergées (ex. `bonus/confs/data/` pour GitLab) ne doivent jamais être commités ; montez-les en volumes hors du dépôt.
+- **Mots de passe d'administration** (GitLab, Argo CD) : générés à l'installation et lus depuis les secrets Kubernetes, jamais écrits en dur.
+- **Variables d'environnement** : `bonus/scripts/swap_repo.sh` accepte `GITLAB_USER`, `GITLAB_PASS`, `GITLAB_REPO_NAME`, `GITHUB_REPO_URL`. Copier `bonus/.env.example` en `bonus/.env` (ignoré) puis `set -a; . bonus/.env; set +a`.
+- **Jeton K3s** (`p1/token`) : fichier généré pendant le provisioning, ignoré par git.
+
+> ⚠️ D'anciens commits contiennent des données d'une instance GitLab (configuration, clés, secrets). Si cette instance existe encore, ses secrets doivent être régénérés : retirer un fichier de l'historique ne remplace pas la révocation.
+
 ## 🔍 Commandes utiles
 
 ### K3s/Kubernetes
